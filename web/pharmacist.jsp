@@ -10,7 +10,7 @@
     List<Map<String, Object>> prescriptions = (List<Map<String, Object>>) request.getAttribute("prescriptions");
 %>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -23,6 +23,14 @@
             --primary-dark: #a855f7;
             --primary-glow: rgba(192,132,252,0.25);
             --bg: #faf5ff;
+        }
+        [data-theme="dark"] {
+            --bg: #120d1f;
+            --surface: #1a1427;
+            --text: #e9d5ff;
+            --text-body: #d4d4d8;
+            --text-muted: #71717a;
+            --border: #2d2040;
             --surface: #ffffff;
             --text: #2e1065;
             --text-body: #1e293b;
@@ -51,7 +59,10 @@
         .nav-item.logout:hover { background: rgba(239,68,68,0.1); color: #f87171; border-left-color: #f87171; }
 
         .main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
-        .topbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 50; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .topbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 50; box-shadow: 0 1px 3px rgba(0,0,0,0.05); transition: background 0.3s; }
+        .topbar-actions { display: flex; align-items: center; gap: 0.75rem; }
+        .dark-toggle { background: var(--bg); border: 1px solid var(--border); border-radius: 0.5rem; padding: 0.5rem 0.75rem; cursor: pointer; font-size: 1rem; transition: all 0.2s; }
+        .dark-toggle:hover { border-color: var(--primary); }
         .topbar-left h2 { font-size: 1.4rem; font-weight: 700; color: var(--text); }
         .topbar-left .breadcrumb { font-size: 0.78rem; color: var(--text-muted); margin-top: 0.15rem; }
         .user-badge { display: flex; align-items: center; gap: 0.625rem; background: var(--bg); padding: 0.5rem 0.875rem; border-radius: 2rem; border: 1px solid #e9d5ff; }
@@ -66,7 +77,24 @@
         .stat-banner-left .count { font-size: 2.5rem; font-weight: 800; color: var(--primary); line-height: 1; }
         .stat-banner-right { font-size: 3rem; opacity: 0.5; }
 
-        .card { background: var(--surface); border-radius: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.04); overflow: hidden; border-top: 4px solid var(--primary); }
+        .card { background: var(--surface); border-radius: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.04); overflow: hidden; border-top: 4px solid var(--primary); transition: background 0.3s; }
+        /* TABLE SEARCH */
+        .table-search { padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); }
+        .search-input { width: 100%; padding: 0.6rem 1rem 0.6rem 2.25rem; background: var(--bg); border: 1.5px solid var(--border); border-radius: 0.5rem; font-family: 'Inter', sans-serif; font-size: 0.875rem; color: var(--text-body); background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: 0.75rem center; transition: all 0.2s; }
+        .search-input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-glow); }
+        /* TOAST */
+        .toast-container { position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 9999; display: flex; flex-direction: column; gap: 0.625rem; pointer-events: none; }
+        .toast { display: flex; align-items: flex-start; gap: 0.75rem; background: #1e293b; border: 1px solid rgba(255,255,255,0.1); border-radius: 0.75rem; padding: 1rem 1.25rem; min-width: 280px; max-width: 360px; box-shadow: 0 8px 32px rgba(0,0,0,0.4); pointer-events: all; animation: toastIn 0.35s cubic-bezier(0.34,1.56,0.64,1); position: relative; overflow: hidden; }
+        .toast.removing { animation: toastOut 0.3s ease forwards; }
+        @keyframes toastIn { from { opacity: 0; transform: translateX(100%); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes toastOut { from { opacity: 1; } to { opacity: 0; transform: translateX(120%); } }
+        .toast-icon { font-size: 1.25rem; flex-shrink: 0; }
+        .toast-title { font-size: 0.875rem; font-weight: 700; color: #f8fafc; }
+        .toast-msg { font-size: 0.78rem; color: #94a3b8; }
+        .toast-close { position: absolute; top: 0.5rem; right: 0.5rem; background: none; border: none; color: #94a3b8; cursor: pointer; font-size: 0.8rem; padding: 0.1rem 0.3rem; }
+        .toast-progress { position: absolute; bottom: 0; left: 0; height: 3px; border-radius: 0 0 0.75rem 0.75rem; animation: toastProg 4s linear forwards; }
+        .toast-info .toast-progress { background: var(--primary); }
+        @keyframes toastProg { from { width: 100%; } to { width: 0%; } }
         .card-header { padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border); }
         .card-title { font-size: 1rem; font-weight: 700; color: var(--text); }
 
@@ -85,9 +113,16 @@
         .empty-state { text-align: center; padding: 3rem; color: var(--text-muted); }
         .empty-icon { font-size: 3rem; margin-bottom: 1rem; opacity: 0.4; }
         .inv-id { font-weight: 700; color: var(--primary); }
+            body { transition: background 0.3s; }
+        td { color: var(--text-body); }
+        thead tr { background: var(--bg); }
+        tbody tr:hover { background: rgba(192,132,252,0.03); }
+        th { color: var(--text-muted); border-bottom: 1px solid var(--border); }
+        td { border-bottom: 1px solid var(--border); }
     </style>
 </head>
 <body>
+    <div class="toast-container" id="toastContainer"></div>
     <aside class="sidebar">
         <div class="sidebar-brand">
             <div class="brand-logo">💊</div>
@@ -115,27 +150,35 @@
                 <h2>Pharmacy Dashboard</h2>
                 <div class="breadcrumb">Pharmacist Portal › Pending Prescriptions</div>
             </div>
-            <div class="user-badge">
-                <div class="user-avatar"><%= user.getName() != null && user.getName().length() > 0 ? String.valueOf(user.getName().charAt(0)).toUpperCase() : "P" %></div>
-                <span class="user-name"><%= user.getName() %></span>
+            <div class="topbar-actions">
+                <button class="dark-toggle" id="darkToggle" onclick="toggleDark()">🌙</button>
+                <div class="user-badge">
+                    <div class="user-avatar"><%= user.getName() != null && user.getName().length() > 0 ? String.valueOf(user.getName().charAt(0)).toUpperCase() : "P" %></div>
+                    <span class="user-name"><%= user.getName() %></span>
+                </div>
             </div>
         </header>
 
         <div class="content">
             <div class="stat-banner">
                 <div class="stat-banner-left">
+
                     <div class="label">Pending Prescriptions</div>
-                    <div class="count"><%= prescriptions != null ? prescriptions.size() : 0 %></div>
+
+                    <div class="count" id="pendingCount" data-target="<%= prescriptions != null ? prescriptions.size() : 0 %>">0</div>
                 </div>
                 <div class="stat-banner-right">💊</div>
             </div>
 
             <div class="card">
+                <div class="table-search">
+                    <input type="text" class="search-input" placeholder="Search by patient, doctor or invoice..." oninput="filterTable(this.value)">
+                </div>
                 <div class="card-header">
                     <div class="card-title">📋 Recent Prescriptions</div>
                 </div>
                 <div class="table-wrap">
-                    <table>
+                    <table id="pharmTable">
                         <thead>
                             <tr>
                                 <th>Date Issued</th>
@@ -174,5 +217,38 @@
             </div>
         </div>
     </div>
+    <script>
+        (function() {
+            const saved = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', saved);
+            document.getElementById('darkToggle').textContent = saved === 'dark' ? '☀️' : '🌙';
+        })();
+        function toggleDark() {
+            const curr = document.documentElement.getAttribute('data-theme');
+            const next = curr === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('theme', next);
+            document.getElementById('darkToggle').textContent = next === 'dark' ? '☀️' : '🌙';
+        }
+        function filterTable(q) {
+            q = q.toLowerCase();
+            document.querySelectorAll('#pharmTable tbody tr').forEach(row => {
+                row.style.display = !q || row.textContent.toLowerCase().includes(q) ? '' : 'none';
+            });
+        }
+        function animateCounter(el, target) {
+            const start = performance.now();
+            function step(now) {
+                const p = Math.min((now - start) / 1200, 1);
+                el.textContent = Math.round((1 - Math.pow(1 - p, 3)) * target);
+                if (p < 1) requestAnimationFrame(step);
+            }
+            requestAnimationFrame(step);
+        }
+        window.addEventListener('DOMContentLoaded', () => {
+            const el = document.getElementById('pendingCount');
+            if (el) animateCounter(el, parseInt(el.dataset.target));
+        });
+    </script>
 </body>
 </html>

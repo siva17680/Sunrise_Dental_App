@@ -41,10 +41,10 @@ public class LoginServlet extends HttpServlet {
 
                 // Redirect based on role
                 String role = user.getRole();
-                if (role.equals("ADMIN")) response.sendRedirect(request.getContextPath() + "/admin.jsp");
-                else if (role.equals("DOCTOR")) response.sendRedirect(request.getContextPath() + "/doctor.jsp");
-                else if (role.equals("PATIENT")) response.sendRedirect(request.getContextPath() + "/patient.jsp");
-                else if (role.equals("PHARMACIST")) response.sendRedirect(request.getContextPath() + "/pharmacist.jsp");
+                if (role.equals("ADMIN")) response.sendRedirect(request.getContextPath() + "/adminDashboard");
+                else if (role.equals("DOCTOR")) response.sendRedirect(request.getContextPath() + "/doctorDashboard");
+                else if (role.equals("PATIENT")) response.sendRedirect(request.getContextPath() + "/patientDashboard");
+                else if (role.equals("PHARMACIST")) response.sendRedirect(request.getContextPath() + "/pharmacistDashboard");
 
             } else {
                 request.setAttribute("error", "Invalid username or password");

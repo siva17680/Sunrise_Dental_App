@@ -6,3 +6,6 @@ dist/
 *.py
 ~*
 er.email
+TestFetch.java
+output.html
+cookies.txt
