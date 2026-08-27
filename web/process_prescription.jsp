@@ -185,7 +185,7 @@
                                         <td>
                                             <div class="price-wrap">
                                                 <span class="price-prefix">LKR</span>
-                                                <input type="number" step="0.01" name="price[]" class="price-input" placeholder="0.00" required min="0">
+                                                <input type="number" step="0.01" name="price[]" class="price-input" data-qty="<%= item.get("quantity") %>" placeholder="0.00" required min="0" oninput="calcTotal()">
                                             </div>
                                         </td>
                                     </tr>
@@ -194,11 +194,27 @@
                             </table>
                         </div>
 
-                        <button type="submit" class="submit-btn">🖨 Add Prices to Invoice &amp; Print Bill</button>
+                        <!-- LIVE TOTAL -->
+                        <div style="background:linear-gradient(135deg,#2e1065,#3b0764);border-radius:0.75rem;padding:1rem 1.5rem;margin-bottom:1.25rem;display:flex;justify-content:space-between;align-items:center;">
+                            <div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:rgba(233,213,255,0.6);">Estimated Pharmacy Total</div>
+                            <div style="font-size:1.5rem;font-weight:800;color:#c084fc;" id="liveTotal">LKR 0.00</div>
+                        </div>
+                        <button type="submit" class="submit-btn">🖼 Add Prices to Invoice &amp; Print Bill</button>
                     </form>
                 </div>
             </div>
         </div>
     </div>
+    <script>
+        function calcTotal() {
+            let total = 0;
+            document.querySelectorAll('.price-input').forEach(inp => {
+                const price = parseFloat(inp.value) || 0;
+                const qty = parseInt(inp.dataset.qty) || 1;
+                total += price * qty;
+            });
+            document.getElementById('liveTotal').textContent = 'LKR ' + total.toFixed(2);
+        }
+    </script>
 </body>
 </html>

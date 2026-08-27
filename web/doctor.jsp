@@ -10,7 +10,7 @@
     List<Map<String, Object>> appointments = (List<Map<String, Object>>) request.getAttribute("appointments");
 %>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -23,6 +23,14 @@
             --primary-dark: #22c55e;
             --primary-glow: rgba(74,222,128,0.25);
             --bg: #f0fdf4;
+        }
+        [data-theme="dark"] {
+            --bg: #071a0f;
+            --surface: #0e1f13;
+            --text: #bbf7d0;
+            --text-body: #d1fae5;
+            --text-muted: #6b7280;
+            --border: #1a3022;
             --surface: #ffffff;
             --text: #14532d;
             --text-body: #1e293b;
@@ -53,7 +61,10 @@
         .doc-info .doc-label { font-size: 0.72rem; color: rgba(187,247,208,0.6); }
 
         .main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
-        .topbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 50; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .topbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 50; box-shadow: 0 1px 3px rgba(0,0,0,0.05); transition: background 0.3s; }
+        .topbar-actions { display: flex; align-items: center; gap: 0.75rem; }
+        .dark-toggle { background: var(--bg); border: 1px solid var(--border); border-radius: 0.5rem; padding: 0.5rem 0.75rem; cursor: pointer; font-size: 1rem; transition: all 0.2s; }
+        .dark-toggle:hover { border-color: var(--primary); }
         .topbar-left h2 { font-size: 1.4rem; font-weight: 700; color: var(--text); }
         .topbar-left .breadcrumb { font-size: 0.78rem; color: var(--text-muted); margin-top: 0.15rem; }
         .user-badge { display: flex; align-items: center; gap: 0.625rem; background: var(--bg); padding: 0.5rem 0.875rem; border-radius: 2rem; border: 1px solid #bbf7d0; }
@@ -77,7 +88,14 @@
         /* TABLE */
         .table-wrap { overflow-x: auto; }
         table { width: 100%; border-collapse: collapse; }
-        thead tr { background: #f8fafc; }
+        thead tr { background: var(--bg); }
+        th { border-bottom: 1px solid var(--border); }
+        td { border-bottom: 1px solid var(--border); }
+        tbody tr:hover { background: #f0fdf4; }
+        /* TABLE SEARCH */
+        .table-search { padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); }
+        .search-input { width: 100%; padding: 0.6rem 1rem 0.6rem 2.25rem; background: var(--bg); border: 1.5px solid var(--border); border-radius: 0.5rem; font-family: 'Inter', sans-serif; font-size: 0.875rem; color: var(--text-body); background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: 0.75rem center; transition: all 0.2s; }
+        .search-input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-glow); }
         th { padding: 0.875rem 1rem; text-align: left; font-size: 0.75rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid var(--border); white-space: nowrap; }
         td { padding: 1rem; font-size: 0.875rem; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
         tbody tr:hover { background: #f0fdf4; }
@@ -96,8 +114,6 @@
 
         .empty-state { text-align: center; padding: 3rem; color: var(--text-muted); }
         .empty-icon { font-size: 3rem; margin-bottom: 1rem; opacity: 0.4; }
-        .date-main { font-weight: 600; }
-        .time-sub { font-size: 0.75rem; color: var(--text-muted); }
     </style>
 </head>
 <body>
@@ -129,10 +145,13 @@
                 <h2>Doctor Dashboard</h2>
                 <div class="breadcrumb">Dr. Portal › My Patients &amp; Availability</div>
             </div>
-            <div class="user-badge">
-                <div class="user-avatar"><%= user.getName() != null && user.getName().length() > 0 ? String.valueOf(user.getName().charAt(0)).toUpperCase() : "D" %></div>
-                <span class="user-name">Dr. <%= user.getName() %></span>
-            </div>
+                <div class="topbar-actions">
+                <button class="dark-toggle" id="darkToggle" onclick="toggleDark()">🌙</button>
+                <div class="user-badge">
+                    <div class="user-avatar"><%= user.getName() != null && user.getName().length() > 0 ? String.valueOf(user.getName().charAt(0)).toUpperCase() : "D" %></div>
+                    <span class="user-name">Dr. <%= user.getName() %></span>
+                </div>
+                </div>
         </header>
 
         <div class="content">
@@ -163,13 +182,15 @@
                 </div>
             </div>
 
-            <!-- PATIENT APPOINTMENTS -->
             <div class="card">
                 <div class="card-header">
-                    <div class="card-title">🩺 My Patients — Appointments &amp; Guests</div>
+                    <div class="card-title">🩺 My Patients &mdash; Appointments &amp; Guests</div>
+                </div>
+                <div class="table-search">
+                    <input type="text" class="search-input" placeholder="Search patient name or type..." oninput="filterTable(this.value)">
                 </div>
                 <div class="table-wrap">
-                    <table>
+                    <table id="patientsTable">
                         <thead>
                             <tr>
                                 <th>Date &amp; Time</th>
@@ -225,5 +246,25 @@
             </div>
         </div>
     </div>
+    <script>
+        (function() {
+            const saved = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', saved);
+            document.getElementById('darkToggle').textContent = saved === 'dark' ? '☀️' : '🌙';
+        })();
+        function toggleDark() {
+            const curr = document.documentElement.getAttribute('data-theme');
+            const next = curr === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('theme', next);
+            document.getElementById('darkToggle').textContent = next === 'dark' ? '☀️' : '🌙';
+        }
+        function filterTable(q) {
+            q = q.toLowerCase();
+            document.querySelectorAll('#patientsTable tbody tr').forEach(row => {
+                row.style.display = !q || row.textContent.toLowerCase().includes(q) ? '' : 'none';
+            });
+        }
+    </script>
 </body>
 </html>
